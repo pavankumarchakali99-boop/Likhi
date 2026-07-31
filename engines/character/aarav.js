@@ -1,5 +1,5 @@
 /**
- * engines/character/maya.js
+ * engines/character/aarav.js
  *
  * Milestone 5 — second character configuration (Phase 9).
  *
@@ -58,7 +58,7 @@
     thresholds: [
       { max: 30, text: 'calm and relaxed' },
       { max: 70, text: 'active and playful' },
-      { max: Infinity, text: 'can't sit still for long' }
+      { max: Infinity, text: 'can\'t sit still for long' }
     ]
   },
   {
