@@ -1359,71 +1359,71 @@ html.dark #toast { background: #1e293b; }
       showToast('🎨 Generating image...');
     }
 
-    try {
-      const result = await Orchestrator.handleIntent(MEMORY_THREAD_ID, intent);
+   try {
 
-      const result = await Orchestrator.handleIntent(MEMORY_THREAD_ID, intent);
+    const result = await Orchestrator.handleIntent(MEMORY_THREAD_ID, intent);
 
-if (result.kind === 'conversation') {
+    if (result.kind === 'conversation') {
 
-    result.responses.forEach(function (entry) {
+        result.responses.forEach(function (entry) {
 
-        if (entry.result.kind === 'message') {
+            if (entry.result.kind === 'message') {
 
-            recordMsg(
-                'assistant',
-                entry.result.content
-            );
+                recordMsg(
+                    'assistant',
+                    entry.result.content
+                );
 
+            }
+
+        });
+
+    } else {
+
+        switch (result.kind) {
+
+            case 'message':
+                recordMsg('assistant', result.content);
+                break;
+
+            case 'image':
+                recordMsg('assistant', '[image]', {
+                    imageUrl: result.url
+                });
+                setTimeout(function () {
+                    recordMsg('assistant', 'Hope you like it 😊');
+                }, 400);
+                break;
+
+            case 'image_unavailable':
+                recordMsg(
+                    'assistant',
+                    "I couldn't generate the image. Try checking your Image API settings 😅"
+                );
+                break;
+
+            case 'image_failed':
+                recordMsg(
+                    'assistant',
+                    "Hmm, that didn't work 😅 Check your Image API settings and try again?"
+                );
+                break;
         }
 
-    });
-
-}
-else {
-
-    switch (result.kind) {
-
-        case 'message':
-            recordMsg('assistant', result.content);
-            break;
-
-        case 'image':
-            recordMsg('assistant', '[image]', {
-                imageUrl: result.url
-            });
-            setTimeout(function () {
-                recordMsg('assistant', 'Hope you like it 😊');
-            }, 400);
-            break;
-
-        case 'image_unavailable':
-            recordMsg(
-                'assistant',
-                "I couldn't generate the image. Try checking your Image API settings 😅"
-            );
-            break;
-
-        case 'image_failed':
-            recordMsg(
-                'assistant',
-                "Hmm, that didn't work 😅 Check your Image API settings and try again?"
-            );
-            break;
     }
 
+} catch (err) {
+    console.error('API error:', err);
+    recordMsg(
+        'assistant',
+        `Oh no, something went wrong 😔 ${err.message || 'Check your API key and try again.'}`
+    );
+    showToast('⚠️ ' + (err.message || 'Unknown error'));
+} finally {
+    EL.typing.classList.remove('visible');
+    EL.sendBtn.disabled = !Store.getState().apiKey;
+    EL.input.focus();
 }
-      }
-    } catch (err) {
-      console.error('API error:', err);
-      recordMsg('assistant', `Oh no, something went wrong 😔 ${err.message || 'Check your API key and try again.'}`);
-      showToast('⚠️ ' + (err.message || 'Unknown error'));
-    } finally {
-      EL.typing.classList.remove('visible');
-      EL.sendBtn.disabled = !Store.getState().apiKey;
-      EL.input.focus();
-    }
-  }
 
   /* ════════════════════════════════════
      START
