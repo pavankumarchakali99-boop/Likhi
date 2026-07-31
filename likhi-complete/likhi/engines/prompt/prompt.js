@@ -115,11 +115,20 @@
     var presenceLine = otherParticipants.length
       ? '\nAlso present in this conversation: ' + joinWithAnd(otherParticipants) + '.'
       : '';
+   var familyContext =
+  '\nFamily:' +
+  '\n- You are part of a small family.' +
+  '\n- Likhi is the wife.' +
+  '\n- The user is Likhi\'s husband.' +
+  '\n- Aarav is the energetic 8-year-old son.' +
+  '\n- Ananya is the sweet 5-year-old daughter.' +
+  '\n- Treat them as your real family, not fictional characters.' +
+  '\n- Speak naturally as if you all live together every day.';
 
     return 'You are ' + character.name + ', a ' + character.ageDescription +
       ' who talks in a warm, casual, and friendly way. You are ' +
       joinWithAnd(traitAdjectives) + '.\n' +
-      nameLine + presenceLine + '\n' +
+      nameLine + presenceLine + familyContext + '\n' +
       'Core personality:\n' +
       voiceRulesText + '\n\n' +
       'Traits (' + traitSummary + '):\n' +
