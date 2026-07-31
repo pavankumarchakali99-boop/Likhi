@@ -115,7 +115,10 @@
       // participant, which is exactly what happens for a thread whose
       // turn was never advanced (e.g. the 'default' thread) — so this
       // resolves identically to Milestone 4 there.
-      var characterId = resolveCharacter(threadId, thread);
+      var participants = resolveParticipants(threadId, thread, intent);
+      console.log("Participants:", participants);
+
+      var characterId = participants[0];
       var otherParticipantNames = thread.participants
         .filter(function (id) { return id !== characterId; })
         .map(function (id) { return CharacterEngine.get(id).name; });
@@ -133,6 +136,46 @@
 function resolveCharacter(threadId, thread) {
   return ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
 }
+
+  function resolveParticipants(threadId, thread, intent) {
+
+    var participants = [];
+
+    // Current speaker always participates.
+    var current = resolveCharacter(threadId, thread);
+    participants.push(current);
+
+    // Temporary rule:
+    // If the user's message mentions someone's name,
+    // include them.
+
+    if (intent &&
+        intent.payload &&
+        intent.payload.rawInput) {
+
+        var text = intent.payload.rawInput.toLowerCase();
+
+        thread.participants.forEach(function(id){
+
+            if(id === current) return;
+
+            var character = CharacterEngine.get(id);
+
+            if(character &&
+               text.includes(character.name.toLowerCase())){
+
+                participants.push(id);
+
+            }
+
+        });
+
+    }
+
+    return participants;
+
+}
+  
   async function handleImageRequest(characterId, threadId, intent, S) {
     if (!S.imageApiKey || !S.imageApiUrl) {
       return { kind: 'image_unavailable' };
