@@ -107,7 +107,9 @@
      * @returns {Promise<object>} a result descriptor (see file header)
      */
     handleIntent: async function (threadId, intent) {
+      console.log("Thread ID:", threadId);
       var thread = ConversationEngine.getThread(threadId);
+      console.log("Thread object:", thread);
       if (!thread || !thread.participants.length) {
         throw new Error('[Orchestrator] no active character for thread "' + threadId + '"');
       }
