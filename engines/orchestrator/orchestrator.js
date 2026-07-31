@@ -168,7 +168,7 @@ function resolveCharacter(threadId, thread) {
    */
 
 function extractWorldUpdate(reply) {
-  var match = reply.match(/```world\s*([\s\S]*?)```/);
+  var match = reply.match(/```(?:world|json)?\s*([\s\S]*?)```/);
 
   if (!match) {
     return {
