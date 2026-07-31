@@ -133,6 +133,11 @@
       return handleSendMessage(characterId, threadId, intent, S, otherParticipantNames);
     }
   };
+
+  function resolveCharacter(threadId, thread) {
+    return ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
+}
+  
 function resolveParticipants(threadId, thread, intent) {
 
     var participants = [];
