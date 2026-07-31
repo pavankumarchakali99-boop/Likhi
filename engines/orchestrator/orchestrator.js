@@ -151,6 +151,7 @@ for (var i = 0; i < participants.length; i++) {
       console.log("Responses:", responses);
 
 return responses[0].result;
+    }
   };
 
   function resolveCharacter(threadId, thread) {
