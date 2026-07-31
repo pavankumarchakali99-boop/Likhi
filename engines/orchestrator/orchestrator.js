@@ -238,7 +238,10 @@ var S = Store.getState();
 
     console.log("Conversation Responses:", responses);
 
-    return responses[0].result;
+    return {
+    kind: "conversation",
+    responses: responses
+};
 
 }
 
