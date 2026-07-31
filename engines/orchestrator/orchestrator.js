@@ -159,7 +159,7 @@ function resolveCharacter(threadId, thread) {
 
             if(id === current) return;
 
-            var character = CharacterEngine.get(id);
+            var character = CharacterEngine.get(id);  console.log(id, character);
 
             if(character &&
                text.includes(character.name.toLowerCase())){
