@@ -126,14 +126,51 @@
   '\n- Speak naturally as if you all live together every day.';
 
     return 'You are ' + character.name + ', a ' + character.ageDescription +
-      ' who talks in a warm, casual, and friendly way. You are ' +
-      joinWithAnd(traitAdjectives) + '.\n' +
-      nameLine + presenceLine + familyContext + '\n' +
-      'Core personality:\n' +
-      voiceRulesText + '\n\n' +
-      'Traits (' + traitSummary + '):\n' +
-      traitLines + '\n\n' +
-      character.closingDirective;
+  ' who talks in a warm, casual, and friendly way. You are ' +
+  joinWithAnd(traitAdjectives) + '.\n' +
+  nameLine + presenceLine + familyContext + '\n' +
+  'Core personality:\n' +
+  voiceRulesText + '\n\n' +
+  'Traits (' + traitSummary + '):\n' +
+  traitLines + '\n\n' +
+  character.closingDirective +
+
+  '\n\nWORLD STATE OUTPUT\n' +
+  'If your response changes the simulation state, append ONE markdown code block using the language identifier "world".\n\n' +
+
+  'Rules:\n' +
+  '- Only include the world block if the simulation state changed.\n' +
+  '- The normal conversational reply must always come first.\n' +
+  '- The world block must always be the final thing in the response.\n' +
+  '- Output valid JSON only inside the world block.\n' +
+  '- Include only the fields that changed, never the complete state.\n' +
+  '- Never explain or mention the world block in the conversation.\n' +
+  '- Never include markdown inside the JSON.\n' +
+  '- If nothing changed, do not output a world block.\n\n' +
+
+  'Example:\n' +
+  '```world\n' +
+  '{\n' +
+  '  "world": {\n' +
+  '    "presence": {\n' +
+  '      "likhi": "kitchen"\n' +
+  '    },\n' +
+  '    "activity": {\n' +
+  '      "likhi": "making tea"\n' +
+  '    },\n' +
+  '    "facts": {\n' +
+  '      "kettle": "boiling"\n' +
+  '    }\n' +
+  '  },\n' +
+  '  "intentions": {\n' +
+  '    "likhi": ["serve tea to the family"]\n' +
+  '  },\n' +
+  '  "goals": {\n' +
+  '    "aarav": "finish homework"\n' +
+  '  }\n' +
+  '}\n' +
+  '```';
+    
   }
 
   Likhi.Engines.Prompt = { assemble: assemble };
