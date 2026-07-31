@@ -1362,20 +1362,57 @@ html.dark #toast { background: #1e293b; }
     try {
       const result = await Orchestrator.handleIntent(MEMORY_THREAD_ID, intent);
 
-      switch (result.kind) {
+      const result = await Orchestrator.handleIntent(MEMORY_THREAD_ID, intent);
+
+if (result.kind === 'conversation') {
+
+    result.responses.forEach(function (entry) {
+
+        if (entry.result.kind === 'message') {
+
+            recordMsg(
+                'assistant',
+                entry.result.content
+            );
+
+        }
+
+    });
+
+}
+else {
+
+    switch (result.kind) {
+
         case 'message':
-          recordMsg('assistant', result.content);
-          break;
+            recordMsg('assistant', result.content);
+            break;
+
         case 'image':
-          recordMsg('assistant', '[image]', { imageUrl: result.url });
-          setTimeout(() => recordMsg('assistant', 'Hope you like it 😊'), 400);
-          break;
+            recordMsg('assistant', '[image]', {
+                imageUrl: result.url
+            });
+            setTimeout(function () {
+                recordMsg('assistant', 'Hope you like it 😊');
+            }, 400);
+            break;
+
         case 'image_unavailable':
-          recordMsg('assistant', "I couldn't generate the image. Try checking your Image API settings 😅");
-          break;
+            recordMsg(
+                'assistant',
+                "I couldn't generate the image. Try checking your Image API settings 😅"
+            );
+            break;
+
         case 'image_failed':
-          recordMsg('assistant', `Hmm, that didn't work 😅 Check your Image API settings and try again?`);
-          break;
+            recordMsg(
+                'assistant',
+                "Hmm, that didn't work 😅 Check your Image API settings and try again?"
+            );
+            break;
+    }
+
+}
       }
     } catch (err) {
       console.error('API error:', err);
