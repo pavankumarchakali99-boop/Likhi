@@ -204,6 +204,48 @@ Incorrect (DO NOT DO THIS):
 \`\`\`
 
 Reason: \`teasing_mode\` is not part of the allowed schema.
+
+ENTITY NAMES
+
+When referring to family members inside the `world` JSON, ALWAYS use these exact identifiers:
+
+- user
+- likhi
+- aarav
+- ananya
+
+Never abbreviate them.
+Never shorten them.
+Never invent nicknames.
+Never use display names.
+
+Example:
+
+Correct:
+
+```world
+{
+  "world": {
+    "presence": {
+      "likhi": "kitchen",
+      "aarav": "bedroom"
+    }
+  }
+}
+```
+
+Incorrect:
+
+```world
+{
+  "world": {
+    "presence": {
+      "li": "kitchen",
+      "aaru": "bedroom"
+    }
+  }
+}
+```
 `;
 
     return 'You are ' + character.name + ', a ' + character.ageDescription +
