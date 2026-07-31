@@ -1324,9 +1324,27 @@ html.dark #toast { background: #1e293b; }
   // step here. `meta` (optional) is passed straight through to that
   // event for cases where something needs to render that isn't part
   // of the persisted record itself (currently: an image URL).
-  function recordMsg(role, content, meta) {
-    MemoryEngine.record(MEMORY_OWNER_ID, MEMORY_THREAD_ID, { role, content }, Store.getState().memory, meta);
-  }
+  function recordMsg(role, content, meta, speaker) {
+
+    MemoryEngine.record(
+        MEMORY_OWNER_ID,
+        MEMORY_THREAD_ID,
+        { role, content },
+        Store.getState().memory,
+        meta
+    );
+
+    Likhi.Engines.Conversation.appendMessage(
+        MEMORY_THREAD_ID,
+        {
+            speaker: speaker || (role === "user" ? "user" : "likhi"),
+            role: role,
+            content: content,
+            timestamp: Date.now()
+        }
+    );
+
+}
 
   async function handleSubmit() {
     if (EL.sendBtn.disabled) return;
@@ -1370,10 +1388,11 @@ html.dark #toast { background: #1e293b; }
             if (entry.result.kind === 'message') {
 
                 recordMsg(
-                    'assistant',
-                    entry.result.content
-                );
-
+    'assistant',
+    entry.result.content,
+    null,
+    entry.characterId
+);
             }
 
         });
