@@ -865,7 +865,7 @@ html.dark #toast { background: #1e293b; }
      Character Engine only depends on Persistence (already loaded
      above). World Engine has no dependencies at all. Prompt Engine
      depends on Character Engine, so it must load after it.
-     maya.js and nova.js (Milestone 5) are character DATA files that
+     aarav.js and ananya.js (Milestone 5) are character DATA files that
      register against Character Engine, same pattern as the chat/media
      provider adapters registering against their interfaces — they
      must load after character.js, and before nothing in particular. -->
@@ -1277,7 +1277,7 @@ html.dark #toast { background: #1e293b; }
    * chat UI actually shows — this is essential, not optional: Memory
    * Engine's record() is also called by the Scheduler (Milestone 6)
    * for autonomous turns in the 'living-room' thread, and without
-   * this filter Maya/Nova's autonomous chatter would leak into this
+   * this filter aarav/ananya's autonomous chatter would leak into this
    * single-character chat window, which has no UI for them.
    */
   window.Likhi.EventBus.subscribe('memory:recorded', function (evt) {
