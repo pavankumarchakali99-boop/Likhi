@@ -166,6 +166,40 @@ function resolveCharacter(threadId, thread) {
    * propagate to the caller, exactly as the original inline
    * callChatAPI() call did in Milestone 4.
    */
+
+function extractWorldUpdate(reply) {
+  var match = reply.match(/```world\s*([\s\S]*?)```/);
+
+  if (!match) {
+    return {
+      reply: reply.trim(),
+      worldUpdate: null
+    };
+  }
+
+  var cleaned = reply.replace(match[0], '').trim();
+
+  try {
+    var worldUpdate = JSON.parse(match[1]);
+
+    if (!worldUpdate || typeof worldUpdate !== 'object') {
+      throw new Error('World update must be an object.');
+    }
+
+    return {
+      reply: cleaned,
+      worldUpdate: worldUpdate
+    };
+  } catch (err) {
+    console.warn('[Orchestrator] Invalid world update JSON', err);
+
+    return {
+      reply: cleaned,
+      worldUpdate: null
+    };
+  }
+}
+  
   async function buildChatReply(characterId, threadId, S, otherParticipantNames, trailingContent) {
     var systemPrompt = PromptEngine.assemble(characterId, {
   userName: S.userName,
@@ -186,8 +220,22 @@ function resolveCharacter(threadId, thread) {
     }
     nonSystemMessages.push({ role: 'user', content: trailingContent });
 
-    var reply = await ChatProviders.send(S.provider, nonSystemMessages, systemPrompt, S.apiKey);
-    return { kind: 'message', content: reply };
+    var rawReply = await ChatProviders.send(
+    S.provider,
+    nonSystemMessages,
+    systemPrompt,
+    S.apiKey
+);
+
+var parsed = extractWorldUpdate(rawReply);
+
+return {
+    kind: 'message',
+content: parsed.reply,
+metadata: {
+    worldUpdate: parsed.worldUpdate
+}
+};
   }
 
   Likhi.Engines.Orchestrator = Orchestrator;
