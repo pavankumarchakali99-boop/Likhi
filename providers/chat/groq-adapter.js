@@ -34,10 +34,10 @@
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'groq/compound',
+          model: 'openai/gpt-oss-120b',
           messages: msgs,
-          temperature: 1.0,
-          max_tokens: 800,
+          temperature: 0.7,
+          max_tokens: 2048,
           frequency_penalty: 0.7,
           presence_penalty: 0.6
         })
