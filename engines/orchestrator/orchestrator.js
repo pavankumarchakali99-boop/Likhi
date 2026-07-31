@@ -228,20 +228,13 @@ function extractWorldUpdate(reply) {
     systemPrompt,
     S.apiKey
 );
-    console.log("===== SYSTEM PROMPT =====");
-console.log(systemPrompt);
-console.log("=========================");
-    console.log("===== RAW LLM RESPONSE =====");
-console.log(rawReply);
-console.log("============================");
+    
 
 var parsed = extractWorldUpdate(rawReply);
 
 if (parsed.worldUpdate) {
     Likhi.Engines.World.applyUpdate("default-world", parsed.worldUpdate);
-  console.log("===== WORLD =====");
-    console.log(WorldEngine.getWorld("default-world"));
-    console.log("=================");
+ 
 }
 
 return {
