@@ -152,11 +152,15 @@ function resolveParticipants(threadId, thread, intent) {
       // participant, which is exactly what happens for a thread whose
       // turn was never advanced (e.g. the 'default' thread) — so this
       // resolves identically to Milestone 4 there.
-      var characterId = resolveCharacter(threadId, thread);
-      var otherParticipantNames = thread.participants
-        .filter(function (id) { return id !== characterId; })
-        .map(function (id) { return CharacterEngine.get(id).name; });
-      var S = Store.getState();
+     var participants = resolveParticipants(threadId, thread, intent);
+
+var characterId = participants[0];
+
+var otherParticipantNames = thread.participants
+  .filter(function (id) { return id !== characterId; })
+  .map(function (id) { return CharacterEngine.get(id).name; });
+
+var S = Store.getState();
 
       if (intent.type === 'image_request') {
         return handleImageRequest(characterId, threadId, intent, S);
@@ -164,7 +168,13 @@ function resolveParticipants(threadId, thread, intent) {
       if (intent.type === 'autonomous_turn') {
         return buildChatReply(characterId, threadId, S, otherParticipantNames, AUTONOMOUS_NUDGE);
       }
-      return handleSendMessage(characterId, threadId, intent, S, otherParticipantNames);
+     return handleConversation(
+    participants,
+    thread,
+    threadId,
+    intent,
+    S
+);
     }
   };
 
@@ -194,6 +204,43 @@ function resolveParticipants(threadId, thread, intent) {
   function handleSendMessage(characterId, threadId, intent, S, otherParticipantNames) {
     return buildChatReply(characterId, threadId, S, otherParticipantNames, intent.payload.rawInput);
   }
+
+  async function handleConversation(participants, thread, threadId, intent, S) {
+
+    var responses = [];
+
+    for (var i = 0; i < participants.length; i++) {
+
+        var characterId = participants[i];
+
+        var otherParticipantNames = thread.participants
+            .filter(function (id) {
+                return id !== characterId;
+            })
+            .map(function (id) {
+                return CharacterEngine.get(id).name;
+            });
+
+        var result = await handleSendMessage(
+            characterId,
+            threadId,
+            intent,
+            S,
+            otherParticipantNames
+        );
+
+        responses.push({
+            characterId: characterId,
+            result: result
+        });
+
+    }
+
+    console.log("Conversation Responses:", responses);
+
+    return responses[0].result;
+
+}
 
   /**
    * Shared by 'send_message' and 'autonomous_turn' — the only thing
