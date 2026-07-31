@@ -133,11 +133,7 @@
       return handleSendMessage(characterId, threadId, intent, S, otherParticipantNames);
     }
   };
-function resolveCharacter(threadId, thread) {
-  return ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
-}
-
-  function resolveParticipants(threadId, thread, intent) {
+function resolveParticipants(threadId, thread, intent) {
 
     var participants = [];
 
@@ -145,25 +141,28 @@ function resolveCharacter(threadId, thread) {
     var current = resolveCharacter(threadId, thread);
     participants.push(current);
 
-    // Temporary rule:
-    // If the user's message mentions someone's name,
-    // include them.
+    console.log("Thread participants:", thread.participants);
 
     if (intent &&
         intent.payload &&
         intent.payload.rawInput) {
 
         var text = intent.payload.rawInput.toLowerCase();
+        console.log("User text:", text);
 
         thread.participants.forEach(function(id){
 
+            console.log("Checking:", id);
+
             if(id === current) return;
 
-            var character = CharacterEngine.get(id);  console.log(id, character);
+            var character = CharacterEngine.get(id);
+            console.log("Character:", character);
 
             if(character &&
                text.includes(character.name.toLowerCase())){
 
+                console.log("Matched:", id);
                 participants.push(id);
 
             }
