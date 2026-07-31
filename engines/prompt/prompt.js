@@ -125,6 +125,87 @@
   '\n- Treat them as your real family, not fictional characters.' +
   '\n- Speak naturally as if you all live together every day.';
 
+    var worldInstructions = `
+WORLD STATE OUTPUT
+
+If your reply changes the simulation state, append ONE markdown code block using the language identifier \`world\`.
+
+Use EXACTLY this schema:
+
+\`\`\`world
+{
+  "world": {
+    "presence": {},
+    "activity": {},
+    "facts": {},
+    "objects": {}
+  },
+  "intentions": {},
+  "goals": {}
+}
+\`\`\`
+
+Rules:
+
+- The normal conversational reply MUST come first.
+- The \`world\` block MUST be the last thing in the response.
+- Output valid JSON only.
+- Use ONLY these fields:
+  - world.presence
+  - world.activity
+  - world.facts
+  - world.objects
+  - intentions
+  - goals
+- NEVER invent new fields or sections.
+- NEVER rename existing fields.
+- Output ONLY the fields that changed.
+- Omit unchanged sections.
+- Do NOT output a world update for emotions, mood, personality, flirting, teasing, thoughts, or speaking style.
+- Output a world update ONLY for objective simulation changes such as:
+  - movement between locations
+  - current activities
+  - new facts
+  - object changes
+  - intentions
+  - goals
+- If nothing in the simulation changed, do NOT output a \`world\` block.
+
+Correct Example:
+
+\`\`\`world
+{
+  "world": {
+    "presence": {
+      "likhi": "kitchen"
+    },
+    "activity": {
+      "likhi": "making tea"
+    }
+  },
+  "intentions": {
+    "likhi": [
+      "serve tea to the family"
+    ]
+  }
+}
+\`\`\`
+
+Incorrect (DO NOT DO THIS):
+
+\`\`\`world
+{
+  "world": {
+    "likhi": {
+      "teasing_mode": true
+    }
+  }
+}
+\`\`\`
+
+Reason: \`teasing_mode\` is not part of the allowed schema.
+`;
+
     return 'You are ' + character.name + ', a ' + character.ageDescription +
   ' who talks in a warm, casual, and friendly way. You are ' +
   joinWithAnd(traitAdjectives) + '.\n' +
@@ -133,43 +214,8 @@
   voiceRulesText + '\n\n' +
   'Traits (' + traitSummary + '):\n' +
   traitLines + '\n\n' +
-  character.closingDirective +
-
-  '\n\nWORLD STATE OUTPUT\n' +
-  'If your response changes the simulation state, append ONE markdown code block using the language identifier "world".\n\n' +
-
-  'Rules:\n' +
-  '- Only include the world block if the simulation state changed.\n' +
-  '- The normal conversational reply must always come first.\n' +
-  '- The world block must always be the final thing in the response.\n' +
-  '- Output valid JSON only inside the world block.\n' +
-  '- Include only the fields that changed, never the complete state.\n' +
-  '- Never explain or mention the world block in the conversation.\n' +
-  '- Never include markdown inside the JSON.\n' +
-  '- If nothing changed, do not output a world block.\n\n' +
-
-  'Example:\n' +
-  '```world\n' +
-  '{\n' +
-  '  "world": {\n' +
-  '    "presence": {\n' +
-  '      "likhi": "kitchen"\n' +
-  '    },\n' +
-  '    "activity": {\n' +
-  '      "likhi": "making tea"\n' +
-  '    },\n' +
-  '    "facts": {\n' +
-  '      "kettle": "boiling"\n' +
-  '    }\n' +
-  '  },\n' +
-  '  "intentions": {\n' +
-  '    "likhi": ["serve tea to the family"]\n' +
-  '  },\n' +
-  '  "goals": {\n' +
-  '    "aarav": "finish homework"\n' +
-  '  }\n' +
-  '}\n' +
-  '```';
+  character.closingDirective +'\n\n' +
+  worldInstructions;
     
   }
 
