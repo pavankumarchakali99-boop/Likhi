@@ -162,7 +162,7 @@ Rules:
 - Output ONLY the fields that changed.
 - Omit unchanged sections.
 - Do NOT output a world update for emotions, mood, personality, flirting, teasing, thoughts, or speaking style.
-- Output a world update ONLY for objective simulation changes such as:
+- ALWAYS output a world block whenever a character moves, starts or stops an activity, changes an object, creates a new fact, or changes intentions/goals.  Making tea, making coffee, cooking, sitting, walking to another room, picking up an object, and similar actions ALWAYS require a world update.
   - movement between locations
   - current activities
   - new facts
