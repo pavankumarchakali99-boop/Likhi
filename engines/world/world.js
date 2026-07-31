@@ -59,21 +59,29 @@
     var world = worlds[worldId];
     if (!world) return;
     Persistence.setJSON(storageKey(worldId), {
-      locations: world.locations,
-      presence: world.presence,
-      facts: world.facts
-    });
+  locations: world.locations,
+  presence: world.presence,
+  activity: world.activity,
+  objects: world.objects,
+  facts: world.facts,
+  intentions: world.intentions,
+  goals: world.goals
+});
   }
 
   function loadWorldFromStorage(worldId) {
     var stored = Persistence.getJSON(storageKey(worldId), null);
     if (!stored || typeof stored !== 'object') return null;
     return {
-      id: worldId,
-      locations: stored.locations || {},
-      presence: stored.presence || {},
-      facts: stored.facts || {}
-    };
+  id: worldId,
+  locations: stored.locations || {},
+  presence: stored.presence || {},
+  activity: stored.activity || {},
+  objects: stored.objects || {},
+  facts: stored.facts || {},
+  intentions: stored.intentions || {},
+  goals: stored.goals || {}
+};
   }
 
   /**
@@ -97,7 +105,19 @@
   function ensureWorld(worldId) {
     var world = tryLoadWorld(worldId);
     if (!world) {
-      world = { id: worldId, locations: {}, presence: {}, facts: {} };
+      world = { id: worldId, locations:{},
+
+    presence:{},
+
+    activity:{},
+
+    objects:{},
+
+    facts:{},
+
+    intentions:{},
+
+    goals:{} };
       worlds[worldId] = world;
     }
     return world;
@@ -174,6 +194,77 @@
       persistWorld(worldId);
       return world.presence;
     },
+    setActivity: function (worldId, characterId, activity) {
+  var world = ensureWorld(worldId);
+  world.activity[characterId] = activity;
+  persistWorld(worldId);
+  return world.activity;
+},
+
+setObject: function (worldId, objectId, value) {
+  var world = ensureWorld(worldId);
+  world.objects[objectId] = value;
+  persistWorld(worldId);
+  return world.objects;
+},
+
+setIntention: function (worldId, characterId, intentions) {
+  var world = ensureWorld(worldId);
+  world.intentions[characterId] = intentions;
+  persistWorld(worldId);
+  return world.intentions;
+},
+
+setGoal: function (worldId, characterId, goals) {
+  var world = ensureWorld(worldId);
+  world.goals[characterId] = goals;
+  persistWorld(worldId);
+  return world.goals;
+},
+
+    applyUpdate: function (worldId, update) {
+  if (!update) return;
+
+  if (update.world) {
+
+    if (update.world.presence) {
+      for (var characterId in update.world.presence) {
+        this.setPresence(worldId, characterId, update.world.presence[characterId]);
+      }
+    }
+
+    if (update.world.activity) {
+      for (var characterId in update.world.activity) {
+        this.setActivity(worldId, characterId, update.world.activity[characterId]);
+      }
+    }
+
+    if (update.world.facts) {
+      for (var key in update.world.facts) {
+        this.setFact(worldId, key, update.world.facts[key]);
+      }
+    }
+
+    if (update.world.objects) {
+      for (var objectId in update.world.objects) {
+        this.setObject(worldId, objectId, update.world.objects[objectId]);
+      }
+    }
+  }
+
+  if (update.intentions) {
+    for (var characterId in update.intentions) {
+      this.setIntention(worldId, characterId, update.intentions[characterId]);
+    }
+  }
+
+  if (update.goals) {
+    for (var characterId in update.goals) {
+      this.setGoal(worldId, characterId, update.goals[characterId]);
+    }
+  }
+},
+    
 
     /**
      * @param {string} worldId
