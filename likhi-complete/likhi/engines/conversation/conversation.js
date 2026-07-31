@@ -178,7 +178,7 @@
      presence-awareness can be exercised and verified end-to-end
      against a real multi-party thread. See engines/character/maya.js
      and engines/character/nova.js for the two additional characters. */
-  ConversationEngine.createThread('living-room', ['likhi', 'maya', 'nova']);
+  ConversationEngine.createThread('living-room', ['likhi', 'aarav', 'ananya']);
 
 })(window);
 
