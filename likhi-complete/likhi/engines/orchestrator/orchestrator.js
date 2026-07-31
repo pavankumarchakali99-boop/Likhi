@@ -166,9 +166,15 @@
    */
   async function buildChatReply(characterId, threadId, S, otherParticipantNames, trailingContent) {
     var systemPrompt = PromptEngine.assemble(characterId, {
-      userName: S.userName,
-      otherParticipants: otherParticipantNames
-    });
+  userName: S.userName,
+  otherParticipants: otherParticipantNames,
+
+  family: {
+    husband: S.userName,
+    wife: 'Likhi',
+    children: ['Aarav', 'Ananya']
+  }
+});
 
     var nonSystemMessages = [];
     if (S.memory) {
