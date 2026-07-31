@@ -260,12 +260,22 @@ var S = Store.getState();
     });
 
     var nonSystemMessages = [];
-    if (S.memory) {
-      MemoryEngine.retrieve(characterId, threadId, 'chat-context').forEach(function (m) {
-        nonSystemMessages.push({ role: m.role, content: m.content });
-      });
-    }
-    nonSystemMessages.push({ role: 'user', content: trailingContent });
+
+ConversationEngine
+    .getRecentTranscript(threadId, 20)
+    .forEach(function (m) {
+
+        nonSystemMessages.push({
+            role: m.role,
+            content: m.content
+        });
+
+    });
+
+nonSystemMessages.push({
+    role: 'user',
+    content: trailingContent
+});
 
     var reply = await ChatProviders.send(S.provider, nonSystemMessages, systemPrompt, S.apiKey);
     return { kind: 'message', content: reply };
