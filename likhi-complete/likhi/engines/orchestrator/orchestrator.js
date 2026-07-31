@@ -113,7 +113,7 @@
       // participant, which is exactly what happens for a thread whose
       // turn was never advanced (e.g. the 'default' thread) — so this
       // resolves identically to Milestone 4 there.
-      var characterId = ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
+      var characterId = resolveCharacter(threadId, thread);
       var otherParticipantNames = thread.participants
         .filter(function (id) { return id !== characterId; })
         .map(function (id) { return CharacterEngine.get(id).name; });
@@ -128,7 +128,9 @@
       return handleSendMessage(characterId, threadId, intent, S, otherParticipantNames);
     }
   };
-
+function resolveCharacter(threadId, thread) {
+  return ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
+}
   async function handleImageRequest(characterId, threadId, intent, S) {
     if (!S.imageApiKey || !S.imageApiUrl) {
       return { kind: 'image_unavailable' };
