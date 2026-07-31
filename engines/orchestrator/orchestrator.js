@@ -74,8 +74,6 @@
   var ConversationEngine  = Likhi.Engines && Likhi.Engines.Conversation;
   var ChatProviders       = Likhi.Providers && Likhi.Providers.Chat;
   var MediaProviders      = Likhi.Providers && Likhi.Providers.Media;
-  var WorldEngine         = Likhi.Engines && Likhi.Engines.World;
-  
 
   if (!Store || !MemoryEngine || !CharacterEngine || !PromptEngine || !ConversationEngine || !ChatProviders || !MediaProviders) {
     throw new Error(
@@ -96,7 +94,46 @@
   // MESSAGE" note above.
   var AUTONOMOUS_NUDGE = '(No new message from the user right now. ' +
     'Continue the conversation naturally on your own, if it fits the moment.)';
+function resolveCharacter(threadId, thread) {
+    return ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
+}
 
+function resolveParticipants(threadId, thread, intent) {
+
+    var participants = [];
+
+    var current = resolveCharacter(threadId, thread);
+    participants.push(current);
+
+    if (
+        intent &&
+        intent.payload &&
+        intent.payload.rawInput
+    ) {
+
+        var text = intent.payload.rawInput.toLowerCase();
+
+        thread.participants.forEach(function(id){
+
+            if(id === current) return;
+
+            var character = CharacterEngine.get(id);
+
+            if (
+                character &&
+                text.includes(character.name.toLowerCase())
+            ) {
+                participants.push(id);
+            }
+
+        });
+
+    }
+
+    return participants;
+}
+
+  
   var Orchestrator = {
     /**
      * Coordinates a single turn for a conversation thread.
@@ -107,9 +144,7 @@
      * @returns {Promise<object>} a result descriptor (see file header)
      */
     handleIntent: async function (threadId, intent) {
-      console.log("Thread ID:", threadId);
       var thread = ConversationEngine.getThread(threadId);
-      console.log("Thread object:", thread);
       if (!thread || !thread.participants.length) {
         throw new Error('[Orchestrator] no active character for thread "' + threadId + '"');
       }
@@ -117,89 +152,22 @@
       // participant, which is exactly what happens for a thread whose
       // turn was never advanced (e.g. the 'default' thread) — so this
       // resolves identically to Milestone 4 there.
+      var characterId = resolveCharacter(threadId, thread);
+      var otherParticipantNames = thread.participants
+        .filter(function (id) { return id !== characterId; })
+        .map(function (id) { return CharacterEngine.get(id).name; });
       var S = Store.getState();
-      var participants = resolveParticipants(threadId, thread, intent);
-      console.log("Participants:", participants);
-var responses = [];
 
-for (var i = 0; i < participants.length; i++) {
-
-    var characterId = participants[i];
-
-    var otherParticipantNames = thread.participants
-        .filter(function (id) {
-            return id !== characterId;
-        })
-        .map(function (id) {
-            return CharacterEngine.get(id).name;
-        });
-
-    var result = await handleSendMessage(
-        characterId,
-        threadId,
-        intent,
-        S,
-        otherParticipantNames
-    );
-
-    responses.push({
-        characterId: characterId,
-        result: result
-    });
-
-}
-      console.log("Responses:", responses);
-
-return responses[0].result;
+      if (intent.type === 'image_request') {
+        return handleImageRequest(characterId, threadId, intent, S);
+      }
+      if (intent.type === 'autonomous_turn') {
+        return buildChatReply(characterId, threadId, S, otherParticipantNames, AUTONOMOUS_NUDGE);
+      }
+      return handleSendMessage(characterId, threadId, intent, S, otherParticipantNames);
     }
   };
 
-  function resolveCharacter(threadId, thread) {
-    return ConversationEngine.getCurrentTurn(threadId) || thread.participants[0];
-}
-  
-function resolveParticipants(threadId, thread, intent) {
-
-    var participants = [];
-
-    // Current speaker always participates.
-    var current = resolveCharacter(threadId, thread);
-    participants.push(current);
-
-    console.log("Thread participants:", thread.participants);
-
-    if (intent &&
-        intent.payload &&
-        intent.payload.rawInput) {
-
-        var text = intent.payload.rawInput.toLowerCase();
-        console.log("User text:", text);
-
-        thread.participants.forEach(function(id){
-
-            console.log("Checking:", id);
-
-            if(id === current) return;
-
-            var character = CharacterEngine.get(id);
-            console.log("Character:", character);
-
-            if(character &&
-               text.includes(character.name.toLowerCase())){
-
-                console.log("Matched:", id);
-                participants.push(id);
-
-            }
-
-        });
-
-    }
-
-    return participants;
-
-}
-  
   async function handleImageRequest(characterId, threadId, intent, S) {
     if (!S.imageApiKey || !S.imageApiUrl) {
       return { kind: 'image_unavailable' };
@@ -235,51 +203,11 @@ function resolveParticipants(threadId, thread, intent) {
    * propagate to the caller, exactly as the original inline
    * callChatAPI() call did in Milestone 4.
    */
-
-function extractWorldUpdate(reply) {
-  var match = reply.match(/```(?:world|json)?\s*([\s\S]*?)```/);
-
-  if (!match) {
-    return {
-      reply: reply.trim(),
-      worldUpdate: null
-    };
-  }
-
-  var cleaned = reply.replace(match[0], '').trim();
-
-  try {
-    var worldUpdate = JSON.parse(match[1]);
-
-    if (!worldUpdate || typeof worldUpdate !== 'object') {
-      throw new Error('World update must be an object.');
-    }
-
-    return {
-      reply: cleaned,
-      worldUpdate: worldUpdate
-    };
-  } catch (err) {
-    console.warn('[Orchestrator] Invalid world update JSON', err);
-
-    return {
-      reply: cleaned,
-      worldUpdate: null
-    };
-  }
-}
-  
   async function buildChatReply(characterId, threadId, S, otherParticipantNames, trailingContent) {
     var systemPrompt = PromptEngine.assemble(characterId, {
-  userName: S.userName,
-  otherParticipants: otherParticipantNames,
-
-  family: {
-    husband: S.userName,
-    wife: 'Likhi',
-    children: ['Aarav', 'Ananya']
-  }
-});
+      userName: S.userName,
+      otherParticipants: otherParticipantNames
+    });
 
     var nonSystemMessages = [];
     if (S.memory) {
@@ -289,28 +217,8 @@ function extractWorldUpdate(reply) {
     }
     nonSystemMessages.push({ role: 'user', content: trailingContent });
 
-    var rawReply = await ChatProviders.send(
-    S.provider,
-    nonSystemMessages,
-    systemPrompt,
-    S.apiKey
-);
-    
-
-var parsed = extractWorldUpdate(rawReply);
-
-if (parsed.worldUpdate) {
-    Likhi.Engines.World.applyUpdate("default-world", parsed.worldUpdate);
- 
-}
-
-return {
-    kind: 'message',
-    content: parsed.reply,
-    metadata: {
-        worldUpdate: parsed.worldUpdate
-    }
-};
+    var reply = await ChatProviders.send(S.provider, nonSystemMessages, systemPrompt, S.apiKey);
+    return { kind: 'message', content: reply };
   }
 
   Likhi.Engines.Orchestrator = Orchestrator;
