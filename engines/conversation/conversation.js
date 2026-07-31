@@ -59,11 +59,13 @@
       if (!threads[threadId]) {
         var participants = (participantIds || []).slice();
         threads[threadId] = {
-          id: threadId,
-          participants: participants,
-          status: 'active',
-          currentTurnId: participants.length ? participants[0] : null
-        };
+    id: threadId,
+    participants: participants,
+    status: 'active',
+    currentTurnId: participants.length ? participants[0] : null,
+
+    transcript: []
+};
       }
       return threads[threadId];
     },
@@ -150,6 +152,48 @@
       thread.currentTurnId = thread.participants[nextIdx];
       return thread.currentTurnId;
     },
+
+    appendMessage: function (threadId, turn) {
+
+    var thread = this.getThread(threadId);
+
+    if (!thread) {
+        throw new Error('[ConversationEngine] no such thread "' + threadId + '"');
+    }
+
+    thread.transcript.push(turn);
+
+},
+
+getTranscript: function (threadId) {
+
+    var thread = this.getThread(threadId);
+
+    if (!thread) {
+        return [];
+    }
+
+    return thread.transcript;
+
+},
+
+getRecentTranscript: function (threadId, limit) {
+
+    var transcript = this.getTranscript(threadId);
+
+    return transcript.slice(-limit);
+
+},
+
+clearTranscript: function (threadId) {
+
+    var thread = this.getThread(threadId);
+
+    if (thread) {
+        thread.transcript = [];
+    }
+
+},
 
     /**
      * @returns {string[]} all known thread ids
