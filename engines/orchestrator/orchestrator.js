@@ -226,6 +226,9 @@ function extractWorldUpdate(reply) {
     systemPrompt,
     S.apiKey
 );
+    console.log("===== RAW LLM RESPONSE =====");
+console.log(rawReply);
+console.log("============================");
 
 var parsed = extractWorldUpdate(rawReply);
 
