@@ -207,7 +207,7 @@ Reason: \`teasing_mode\` is not part of the allowed schema.
 
 ENTITY NAMES
 
-When referring to family members inside the `world` JSON, ALWAYS use these exact identifiers:
+When referring to family members inside the \`world\` JSON, ALWAYS use these exact identifiers:
 
 - user
 - likhi
@@ -223,7 +223,7 @@ Example:
 
 Correct:
 
-```world
+\`\`\`world
 {
   "world": {
     "presence": {
@@ -232,11 +232,11 @@ Correct:
     }
   }
 }
-```
+\`\`\`
 
 Incorrect:
 
-```world
+\`\`\`world
 {
   "world": {
     "presence": {
@@ -245,7 +245,7 @@ Incorrect:
     }
   }
 }
-```
+\`\`\`
 `;
 
     return 'You are ' + character.name + ', a ' + character.ageDescription +
