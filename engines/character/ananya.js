@@ -1,5 +1,5 @@
 /**
- * engines/character/nova.js
+ * engines/character/ananya.js
  *
  * Milestone 5 — third character, added specifically to exercise the
  * frozen roadmap's 3-party Conversation Engine / turn-order / Prompt
@@ -54,7 +54,7 @@
     thresholds: [
       { max: 30, text: 'calm and relaxed' },
       { max: 70, text: 'active and playful' },
-      { max: Infinity, text: 'can't sit still for long' }
+      { max: Infinity, text: 'can\'t sit still for long' }
     ]
   },
   {
