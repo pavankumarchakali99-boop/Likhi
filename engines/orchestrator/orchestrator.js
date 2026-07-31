@@ -117,23 +117,40 @@
       // participant, which is exactly what happens for a thread whose
       // turn was never advanced (e.g. the 'default' thread) — so this
       // resolves identically to Milestone 4 there.
+      var S = Store.getState();
       var participants = resolveParticipants(threadId, thread, intent);
       console.log("Participants:", participants);
+var responses = [];
 
-      var characterId = participants[0];
-      var otherParticipantNames = thread.participants
-        .filter(function (id) { return id !== characterId; })
-        .map(function (id) { return CharacterEngine.get(id).name; });
-      var S = Store.getState();
+for (var i = 0; i < participants.length; i++) {
 
-      if (intent.type === 'image_request') {
-        return handleImageRequest(characterId, threadId, intent, S);
-      }
-      if (intent.type === 'autonomous_turn') {
-        return buildChatReply(characterId, threadId, S, otherParticipantNames, AUTONOMOUS_NUDGE);
-      }
-      return handleSendMessage(characterId, threadId, intent, S, otherParticipantNames);
-    }
+    var characterId = participants[i];
+
+    var otherParticipantNames = thread.participants
+        .filter(function (id) {
+            return id !== characterId;
+        })
+        .map(function (id) {
+            return CharacterEngine.get(id).name;
+        });
+
+    var result = await handleSendMessage(
+        characterId,
+        threadId,
+        intent,
+        S,
+        otherParticipantNames
+    );
+
+    responses.push({
+        characterId: characterId,
+        result: result
+    });
+
+}
+      console.log("Responses:", responses);
+
+return responses[0].result;
   };
 
   function resolveCharacter(threadId, thread) {
