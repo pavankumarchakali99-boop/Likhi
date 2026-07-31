@@ -873,6 +873,7 @@ html.dark #toast { background: #1e293b; }
 <script src="engines/character/aarav.js"></script>
 <script src="engines/character/ananya.js"></script>
 <script src="engines/world/world.js"></script>
+  <script src="engines/parser/response-parser.js"></script>
 <script src="engines/prompt/prompt.js"></script>
 
 <!-- ══════════ MEDIA PROVIDER ADAPTERS (Milestone 3) ══════════
@@ -986,6 +987,8 @@ html.dark #toast { background: #1e293b; }
   /* ── Intent Engine + Orchestrator references (Milestone 4) ── */
   var IntentEngine = window.Likhi && window.Likhi.Engines && window.Likhi.Engines.Intent;
   var Orchestrator = window.Likhi && window.Likhi.Engines && window.Likhi.Engines.Orchestrator;
+  var ResponseParser = window.Likhi && window.Likhi.Engines && window.Likhi.Engines.ResponseParser;
+var WorldEngine    = window.Likhi && window.Likhi.Engines && window.Likhi.Engines.World;
   if (!IntentEngine || !Orchestrator) {
     throw new Error(
       'Likhi.Engines.Intent / Likhi.Engines.Orchestrator failed to load — check that ' +
@@ -1387,9 +1390,18 @@ html.dark #toast { background: #1e293b; }
 
             if (entry.result.kind === 'message') {
 
-                recordMsg(
-    'assistant',
-    entry.result.content,
+var parsed = ResponseParser.parse(entry.result.content);
+
+if (parsed.world) {
+    WorldEngine.applyUpdate(
+        "default-world",
+        parsed.world
+    );
+}
+
+recordMsg(
+    "assistant",
+    parsed.text,
     null,
     entry.characterId
 );
@@ -1402,8 +1414,22 @@ html.dark #toast { background: #1e293b; }
         switch (result.kind) {
 
             case 'message':
-                recordMsg('assistant', result.content);
-                break;
+
+    var parsed = ResponseParser.parse(result.content);
+
+    if (parsed.world) {
+        WorldEngine.applyUpdate(
+            "default-world",
+            parsed.world
+        );
+    }
+
+    recordMsg(
+        "assistant",
+        parsed.text
+    );
+
+    break;
 
             case 'image':
                 recordMsg('assistant', '[image]', {
