@@ -74,6 +74,8 @@
   var ConversationEngine  = Likhi.Engines && Likhi.Engines.Conversation;
   var ChatProviders       = Likhi.Providers && Likhi.Providers.Chat;
   var MediaProviders      = Likhi.Providers && Likhi.Providers.Media;
+  var WorldEngine         = Likhi.Engines && Likhi.Engines.World;
+  
 
   if (!Store || !MemoryEngine || !CharacterEngine || !PromptEngine || !ConversationEngine || !ChatProviders || !MediaProviders) {
     throw new Error(
@@ -235,12 +237,19 @@ console.log("============================");
 
 var parsed = extractWorldUpdate(rawReply);
 
+if (parsed.worldUpdate) {
+    Likhi.Engines.World.applyUpdate("default-world", parsed.worldUpdate);
+  console.log("===== WORLD =====");
+    console.log(WorldEngine.getWorld("default-world"));
+    console.log("=================");
+}
+
 return {
     kind: 'message',
-content: parsed.reply,
-metadata: {
-    worldUpdate: parsed.worldUpdate
-}
+    content: parsed.reply,
+    metadata: {
+        worldUpdate: parsed.worldUpdate
+    }
 };
   }
 
