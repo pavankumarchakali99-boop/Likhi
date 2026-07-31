@@ -281,8 +281,8 @@
     WorldEngine.addLocation('default-world', 'default-location', { name: 'Default Location' });
     WorldEngine.setPresence('default-world', 'likhi', 'default-location');
     WorldEngine.addLocation('default-world', 'cafe', { name: 'The Corner Cafe' });
-    WorldEngine.setPresence('default-world', 'maya', 'cafe');
-    WorldEngine.setPresence('default-world', 'nova', 'cafe');
+    WorldEngine.setPresence('default-world', 'aarav', 'cafe');
+    WorldEngine.setPresence('default-world', 'ananya', 'cafe');
     WorldEngine.setFact('default-world', 'weather', 'sunny');
   } else {
     /* Already seeded in a previous session — just bring it into the
