@@ -37,7 +37,7 @@
           model: 'meta-llama/llama-prompt-guard-2-86m',
           messages: msgs,
           temperature: 0.7,
-          max_tokens: 2048,
+          max_tokens: Math.min(requestedMaxTokens || 512, 512),
           frequency_penalty: 0.7,
           presence_penalty: 0.6
         })
