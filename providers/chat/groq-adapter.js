@@ -34,7 +34,7 @@
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'openai/gpt-oss-120b',
+          model: 'meta-llama/llama-prompt-guard-2-86m',
           messages: msgs,
           temperature: 0.7,
           max_tokens: 2048,
